@@ -2,36 +2,37 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace DMAWS_T2305M_KimQuangMinh.Controllers
+namespace DMAWS_T2305M_LuuQuangThanh.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class EmployeesController : Controller
+    public class EmployeesController : ControllerBase
     {
-        private readonly t2305mApiContext _context;
+        private readonly DataContext _context;
 
-        public EmployeesController(t2305mApiContext context)
+        public EmployeesController(DataContext context)
         {
             _context = context;
         }
 
         // GET: api/Employees
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees()
+        public async Task<IActionResult> GetEmployees()
         {
-            return await _context.Employees.Include(e => e.ProjectEmployees).ToListAsync();
+            var employees = await _context.Employees.Include(e => e.ProjectEmployees).ToListAsync();
+            return Ok(employees);
         }
 
         // POST: api/Employees
         [HttpPost]
-        public async Task<ActionResult<Employee>> PostEmployee(Employee employee)
+        public async Task<IActionResult> PostEmployee(Employee employee)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             _context.Employees.Add(employee);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetEmployee", new { id = employee.EmployeeId }, employee);
+            return CreatedAtAction(nameof(GetEmployeeDetails), new { id = employee.EmployeeId }, employee);
         }
 
         // PUT: api/Employees/{id}
@@ -42,7 +43,16 @@ namespace DMAWS_T2305M_KimQuangMinh.Controllers
 
             _context.Entry(employee).State = EntityState.Modified;
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Employees.Any(e => e.EmployeeId == id)) return NotFound();
+                throw;
+            }
+
             return NoContent();
         }
 
@@ -58,8 +68,10 @@ namespace DMAWS_T2305M_KimQuangMinh.Controllers
 
             return NoContent();
         }
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Project>> GetProjectDetails(int id)
+
+        // GET: api/Employees/projects/{id}
+        [HttpGet("projects/{id}")]
+        public async Task<IActionResult> GetProjectDetails(int id)
         {
             var project = await _context.Projects
                                         .Include(p => p.ProjectEmployees)
@@ -67,11 +79,12 @@ namespace DMAWS_T2305M_KimQuangMinh.Controllers
                                         .FirstOrDefaultAsync(p => p.ProjectId == id);
             if (project == null) return NotFound();
 
-            return project;
+            return Ok(project);
         }
 
+        // GET: api/Employees/search
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<Employee>>> SearchEmployees(string name, DateTime? dobFrom, DateTime? dobTo)
+        public async Task<IActionResult> SearchEmployees(string name, DateTime? dobFrom, DateTime? dobTo)
         {
             var query = _context.Employees.AsQueryable();
 
@@ -90,11 +103,13 @@ namespace DMAWS_T2305M_KimQuangMinh.Controllers
                 query = query.Where(e => e.EmployeeDOB <= dobTo.Value);
             }
 
-            return await query.Include(e => e.ProjectEmployees).ToListAsync();
+            var result = await query.Include(e => e.ProjectEmployees).ToListAsync();
+            return Ok(result);
         }
 
+        // GET: api/Employees/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Employee>> GetEmployeeDetails(int id)
+        public async Task<IActionResult> GetEmployeeDetails(int id)
         {
             var employee = await _context.Employees
                                          .Include(e => e.ProjectEmployees)
@@ -102,8 +117,7 @@ namespace DMAWS_T2305M_KimQuangMinh.Controllers
                                          .FirstOrDefaultAsync(e => e.EmployeeId == id);
             if (employee == null) return NotFound();
 
-            return employee;
+            return Ok(employee);
         }
-
     }
 }

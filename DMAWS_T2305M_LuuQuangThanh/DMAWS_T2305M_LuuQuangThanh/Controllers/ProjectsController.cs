@@ -1,16 +1,16 @@
-﻿using DMAWS_T2305M_KimQuangMinh.Models;
+﻿using DMAWS_T2305M_LuuQuangThanh.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace DMAWS_T2305M_KimQuangMinh.Controllers
+namespace DMAWS_T2305M_LuuQuangThanh.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class ProjectsController : Controller
     {
-        private readonly t2305mApiContext _context;
+        private readonly Models.DataContext _context;
 
-        public ProjectsController(t2305mApiContext context)
+        public ProjectsController(Models.DataContext context)
         {
             _context = context;
         }

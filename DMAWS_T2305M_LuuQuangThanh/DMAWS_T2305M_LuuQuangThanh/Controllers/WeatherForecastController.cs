@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace DMAWS_T2305M_KimQuangMinh.Controllers
+namespace DMAWS_T2305M_LuuQuangThanh.Controllers
 {
     [ApiController]
     [Route("[controller]")]

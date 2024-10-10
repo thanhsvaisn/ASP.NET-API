@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using DMAWS_T2305M_KimQuangMinh.Attributes;
-namespace DMAWS_T2305M_KimQuangMinh.Models
+using DMAWS_T2305M_LuuQuangThanh.Attributes;
+namespace DMAWS_T2305M_LuuQuangThanh.Models
 {
     public class Project
     {
